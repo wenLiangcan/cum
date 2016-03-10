@@ -25,51 +25,51 @@ class TestFuManHua(unittest.TestCase):
 
     def series_information_tester(self, data):
         URL = data['url']
-        assert re.match(fumanhua.FuManHuaSeries.url_re, URL) is not None
+        self.assertIsNotNone(re.match(fumanhua.FuManHuaSeries.url_re, URL))
         series = fumanhua.FuManHuaSeries(URL)
-        assert series.name == data['name']
-        assert series.alias == data['alias']
-        assert series.url == URL
-        assert series.directory is None
-        assert len(series.chapters) == len(data['chapters'])
+        self.assertEqual(series.name, data['name'])
+        self.assertEqual(series.alias, data['alias'])
+        self.assertEqual(series.url, URL)
+        self.assertIsNone(series.directory)
+        self.assertEqual(len(series.chapters), len(data['chapters']))
         for chapter in series.chapters:
-            assert chapter.name == data['name']
-            assert chapter.alias == data['alias']
-            assert chapter.chapter in data['chapters']
+            self.assertEqual(chapter.name, data['name'])
+            self.assertEqual(chapter.alias, data['alias'])
+            self.assertIn(chapter.chapter, data['chapters'])
             data['chapters'].remove(chapter.chapter)
-            assert chapter.groups is []
-            assert chapter.directory is None
-        assert len(data['chapters']) == 0
+            self.assertEqual(chapter.groups, [])
+            self.assertIsNone(chapter.directory)
+        self.assertEqual(len(data['chapters']), 0)
 
     def image_files_tester(self, zip_file_path, files_count):
         """Test images are downloaded correctly."""
         with zipfile.ZipFile(zip_file_path, 'r') as zf:
             files = zf.namelist()
-            assert len(files) == files_count
+            self.assertEqual(len(files), files_count)
             for f in files:
                 with io.BytesIO(zf.read(f)) as img:
                     filetype = imghdr.what(img)
-                    assert filetype is not None
-                    assert filetype != 'gif'
+                    self.assertIsNotNone(filetype)
+                    self.assertNotEqual(filetype, 'gif')
 
     def test_chapter_1_过剩妄想少年(self):
         URL = 'http://www.fumanhua.net/manhua/4701/567207.html'
         NAME = '过剩妄想少年'
-        assert re.match(fumanhua.FuManHuaChapter.url_re, URL) is not None
+        self.assertIsNotNone(re.match(fumanhua.FuManHuaChapter.url_re, URL))
         chapter = fumanhua.FuManHuaChapter.from_url(URL)
-        assert chapter.alias == 'guo-sheng-wang-xiang-shao-nian'
-        assert chapter.available() is True
-        assert chapter.chapter == '1'
-        assert chapter.directory is None
-        assert chapter.groups is []
-        assert chapter.name == NAME
-        assert chapter.url == URL
-        assert chapter.title == '第1话'
+        self.assertEqual(chapter.alias, None)
+        self.assertTrue(chapter.available())
+        self.assertEqual(chapter.chapter, '1')
+        self.assertIsNone(chapter.directory)
+        self.assertEqual(chapter.groups, [])
+        self.assertEqual(chapter.name, NAME)
+        self.assertEqual(chapter.url, URL)
+        self.assertEqual(chapter.title, '第1话')
         path_ = os.path.join(
             self.directory.name, NAME,
             '过剩妄想少年 - c001 [Unknown].zip'
         )
-        assert chapter.filename == path_
+        self.assertEqual(chapter.filename, path_)
         chapter.download()
         self.image_files_tester(path_, 30)
 
@@ -90,3 +90,7 @@ class TestFuManHua(unittest.TestCase):
             'url': 'http://www.fumanhua.net/manhua/4758/'
         }
         self.series_information_tester(data)
+
+
+if __name__ == '__main__':
+    unittest.main()
