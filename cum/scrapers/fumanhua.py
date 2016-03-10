@@ -2,23 +2,13 @@
 
 from bs4 import BeautifulSoup
 from cum import config
-from cum.scrapers.base import BaseChapter, BaseSeries, download_pool
+from cum.scrapers.cnbase import CNBaseSeries, CNBaseChapter, download_pool
 from urllib.parse import urljoin
 from functools import partial
 from queue import Queue
 import re
-import requests
-from snownlp import SnowNLP
 
-HEAD = {
-    "User-Agent": ("Mozilla/5.0 (X11; Linux x86_64; rv:44.0) "
-                   "Gecko/20100101 Firefox/44.0"),
-}
-HTML_CHARSET = 'gb2312'
-
-
-def cn2pinyin(cn):
-    return ' '.join(SnowNLP(cn).pinyin)
+CHARSET = 'gb2312'
 
 
 def parse_chapter(title):
@@ -31,24 +21,12 @@ def parse_chapter(title):
     return chapter
 
 
-def http_get(url, charset='utf-8', **args):
-    r = requests.get(url, headers=HEAD, **args)
-    r.encoding = charset
-    return r
-
-
-def queue2list(q):
-    l = []
-    for _ in range(0, q.qsize()):
-        l.append(q.get())
-    return l
-
-
-class FuManHuaSeries(BaseSeries):
+class FuManHuaSeries(CNBaseSeries):
+    CHARSET = CHARSET
     url_re = re.compile(r'http://www\.fumanhua\.net/manhua/\d+/')
 
     def __init__(self, url, directory=None):
-        r = http_get(url, charset=HTML_CHARSET)
+        r = self.http_get(url)
         self.url = url
         self.directory = directory
         self.soup = BeautifulSoup(r.text, config.get().html_parser)
@@ -57,13 +35,6 @@ class FuManHuaSeries(BaseSeries):
     @property
     def name(self):
         return self.soup.find('div', class_='title').h1.contents[0].string
-
-    @property
-    def alias(self):
-        pinyin = cn2pinyin(self.name)
-        allowed_re = r'[A-Za-z0-9\-\s]'
-        name = re.sub('-+', '-', pinyin.lower().replace(' ', '-'))
-        return ''.join(c for c in name if re.match(allowed_re, c))
 
     def get_chapters(self):
         chapter_list = [li.a
@@ -79,7 +50,8 @@ class FuManHuaSeries(BaseSeries):
         return chapters
 
 
-class FuManHuaChapter(BaseChapter):
+class FuManHuaChapter(CNBaseChapter):
+    CHARSET = CHARSET
     url_re = re.compile(r'http://www\.fumanhua\.net/manhua/\d+/\d+\.html')
     uses_pages = False
 
@@ -100,7 +72,7 @@ class FuManHuaChapter(BaseChapter):
     def from_url(url):
         page_title_re = re.compile(r'(.*)：(.*)\[.*')
 
-        r = http_get(url, charset=HTML_CHARSET)
+        r = FuManHuaChapter.http_get(url)
         soup = BeautifulSoup(r.text, config.get().html_parser)
         page_title = soup.find('title').string
         title_parts = re.search(page_title_re, page_title)
@@ -111,7 +83,7 @@ class FuManHuaChapter(BaseChapter):
                                url=url, title=title)
 
     def download(self):
-        r = http_get(self.url, charset=HTML_CHARSET)
+        r = self.http_get(self.url)
         soup = BeautifulSoup(r.text, config.get().html_parser)
         pages = soup.find('select').find_all('option')
         images = self._parse_images(r.text, len(pages))
@@ -123,16 +95,16 @@ class FuManHuaChapter(BaseChapter):
         with self.progress_bar(len(images)) as bar:
             with download_pool as pool:
                 for i, img in enumerate(images):
-                    headers = dict(HEAD, **{
+                    headers = self.build_headers(**{
                         'Referer': referers[i],
                         'Accept': 'image/png,image/*;q=0.8,*/*;q=0.5'
                     })
-                    r = requests.get(img, headers=headers, cookies=cookies,
-                                     stream=True)
+                    r = self.http_get(img, headers=headers, cookies=cookies,
+                                      stream=True)
                     fut = pool.submit(self.page_download_task, i, r)
                     fut.add_done_callback(partial(self.page_download_finish,
                                                   bar, files_queue))
-            files_list = queue2list(files_queue)
+            files_list = self.queue2list(files_queue)
             files_list = sorted(files_list, key=lambda pair: pair[0])
             files_list = map(lambda pair: pair[1], files_list)
             self.create_zip(files_list)
@@ -162,12 +134,3 @@ class FuManHuaChapter(BaseChapter):
                           '{}/{}.{}'.format(img_path, id_, ext))
             images.append(img)
         return images
-
-    @staticmethod
-    def page_download_finish(bar, files_queue, fs):
-        """Callback functions for page_download_task futures, assigning the
-        resulting filehandles to the right index in the array and updating
-        the progress bar.
-        """
-        files_queue.put(fs.result())
-        bar.update(1)
