@@ -2,6 +2,7 @@ from test_batoto import *
 from test_cli import *
 from test_dynastyscans import *
 from test_madokami import *
+from test_fumanhua import *
 import sys
 import unittest
 import warnings

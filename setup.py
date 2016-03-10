@@ -25,7 +25,8 @@ setup(
         'Click',
         'natsort',
         'requests',
-        'SQLAlchemy'
+        'SQLAlchemy',
+        'snownlp'
     ],
     entry_points='''
         [console_scripts]
