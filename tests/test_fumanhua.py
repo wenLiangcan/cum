@@ -81,3 +81,12 @@ class TestFuManHua(unittest.TestCase):
             'url': 'http://www.fumanhua.net/manhua/4701/'
         }
         self.series_information_tester(data)
+
+    def test_series_contains_only_one_chapter_部长比部下不足(self):
+        data = {
+            'alias': 'bu-chang-bi-bu-xia-bu-zu',
+            'chapters': ['全一卷'],
+            'name': '部长比部下不足',
+            'url': 'http://www.fumanhua.net/manhua/4758/'
+        }
+        self.series_information_tester(data)
