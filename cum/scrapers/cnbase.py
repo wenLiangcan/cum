@@ -54,6 +54,7 @@ class CNBaseSeries(BaseSeries, HTTPUtil):
 
 
 class CNBaseChapter(BaseChapter, HTTPUtil):
+    uses_pages = False
 
     @classmethod
     @abstractmethod
