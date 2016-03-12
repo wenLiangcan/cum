@@ -148,6 +148,10 @@ class Chapter(Base):
         elif parse.netloc == 'www.fumanhua.net':
             from cum.scrapers.fumanhua import FuManHuaChapter
             return FuManHuaChapter(**kwargs)
+        elif parse.netloc == 'www.99comic.com' \
+                or parse.netloc == '99comic.com':
+            from cum.scrapers.c99comic import C99ComicChapter
+            return C99ComicChapter(**kwargs)
         else:
             return None
 

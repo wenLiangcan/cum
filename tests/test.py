@@ -3,6 +3,7 @@ from test_cli import *
 from test_dynastyscans import *
 from test_madokami import *
 from test_fumanhua import *
+from test_c99comic import *
 import sys
 import unittest
 import warnings
