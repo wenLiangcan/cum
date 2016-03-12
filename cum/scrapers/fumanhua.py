@@ -68,8 +68,8 @@ class FuManHuaChapter(CNBaseChapter):
         self.directory = directory
         self.groups = groups or []
 
-    @staticmethod
-    def from_url(url):
+    @classmethod
+    def from_url(cls, url):
         page_title_re = re.compile(r'(.*)：(.*)\[.*')
 
         r = FuManHuaChapter.http_get(url)
@@ -79,8 +79,7 @@ class FuManHuaChapter(CNBaseChapter):
         name = title_parts.group(1)
         title = title_parts.group(2)
         chapter = parse_chapter(title)
-        return FuManHuaChapter(name=name, chapter=chapter,
-                               url=url, title=title)
+        return cls(name=name, chapter=chapter, url=url, title=title)
 
     def download(self):
         r = self.http_get(self.url)

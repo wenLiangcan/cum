@@ -1,7 +1,10 @@
-from cum.scrapers.base import BaseSeries, BaseChapter, download_pool
 import re
+from abc import abstractmethod
+
 import requests
 from snownlp import SnowNLP
+
+from cum.scrapers.base import BaseChapter, BaseSeries, download_pool
 
 __all__ = ['download_pool', 'CNBaseSeries', 'BaseChapter']
 
@@ -51,6 +54,12 @@ class CNBaseSeries(BaseSeries, HTTPUtil):
 
 
 class CNBaseChapter(BaseChapter, HTTPUtil):
+
+    @classmethod
+    @abstractmethod
+    def from_url(cls, url):
+        """Method to initialize a Chapter object from the chapter URL."""
+        raise NotImplementedError
 
     @staticmethod
     def page_download_finish(bar, files_queue, fs):
