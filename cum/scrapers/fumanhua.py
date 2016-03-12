@@ -103,9 +103,7 @@ class FuManHuaChapter(CNBaseChapter):
                     fut = pool.submit(self.page_download_task, i, r)
                     fut.add_done_callback(partial(self.page_download_finish,
                                                   bar, files_queue))
-            files_list = self.queue2list(files_queue)
-            files_list = sorted(files_list, key=lambda pair: pair[0])
-            files_list = map(lambda pair: pair[1], files_list)
+            files_list = self.files_queue2sorted_list(files_queue)
             self.create_zip(files_list)
 
     def _get_pic_server(self, i):

@@ -81,3 +81,14 @@ class CNBaseChapter(BaseChapter, HTTPUtil):
         for _ in range(0, q.qsize()):
             l.append(q.get())
         return l
+
+    @classmethod
+    def files_queue2sorted_list(cls, fq):
+        """
+        :type fq: queue.Queue[(int, T)]
+        :rtype: list[T]
+        """
+        files_list = cls.queue2list(fq)
+        files_list = sorted(files_list, key=lambda pair: pair[0])
+        files_list = map(lambda pair: pair[1], files_list)
+        return files_list
