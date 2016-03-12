@@ -4,10 +4,9 @@ from cum import config
 import os
 import tempfile
 import unittest
-import zipfile
-import imghdr
-import io
 import re
+
+from common_testers import image_files_tester
 
 
 class TestFuManHua(unittest.TestCase):
@@ -41,17 +40,6 @@ class TestFuManHua(unittest.TestCase):
             self.assertIsNone(chapter.directory)
         self.assertEqual(len(data['chapters']), 0)
 
-    def image_files_tester(self, zip_file_path, files_count):
-        """Test images are downloaded correctly."""
-        with zipfile.ZipFile(zip_file_path, 'r') as zf:
-            files = zf.namelist()
-            self.assertEqual(len(files), files_count)
-            for f in files:
-                with io.BytesIO(zf.read(f)) as img:
-                    filetype = imghdr.what(img)
-                    self.assertIsNotNone(filetype)
-                    self.assertNotEqual(filetype, 'gif')
-
     def test_chapter_1_过剩妄想少年(self):
         URL = 'http://www.fumanhua.net/manhua/4701/567207.html'
         NAME = '过剩妄想少年'
@@ -71,7 +59,7 @@ class TestFuManHua(unittest.TestCase):
         )
         self.assertEqual(chapter.filename, path_)
         chapter.download()
-        self.image_files_tester(path_, 30)
+        image_files_tester(self, path_, 30)
 
     def test_series_过剩妄想少年(self):
         data = {
