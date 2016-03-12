@@ -18,6 +18,8 @@ class C99ComicChapter(CNBaseChapter):
         r'http://(?:www\.)?99comic\.com/mh/\d+/list_\d+\.htm\?s=\d+',
         re.IGNORECASE)
 
+    DOMAIN = '99comic.com'
+
     PIC_SERVERS = (
         "http://2.{}:9393/dm01/",
         "http://2.{}:9393/dm02/",
@@ -82,22 +84,13 @@ class C99ComicChapter(CNBaseChapter):
         server = self._get_pic_server()
         encoded_piclst = self._extract_encoded_pic_list(html)
         piclst = self._decode_piclst(encoded_piclst)
-        # TODO
-        return [urlparse.urljoin(server, p) for p in piclst]
+        return [server + p for p in piclst]
 
     def _get_pic_server(self):
         query = urlparse.urlparse(self.url).query
         server = urlparse.parse_qs(query)['s'][0]
         server = int(server) - 1
-        return self.PIC_SERVERS[server].format(self._domain)
-
-    @property
-    def _domain(self):
-        domain = urlparse.urlparse(self.url).netloc
-        domain_parts = domain.split('.')
-        if domain_parts[0] == 'www':
-            domain = '.'.join(domain_parts[1:])
-        return domain
+        return self.PIC_SERVERS[server].format(self.DOMAIN)
 
     @staticmethod
     def _extract_encoded_pic_list(html):
