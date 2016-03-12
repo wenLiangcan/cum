@@ -1,4 +1,4 @@
-import os
+import os, re
 import tempfile
 import unittest
 
@@ -65,6 +65,18 @@ class TestC99Comic(unittest.TestCase):
     def series_generated_chapter_information_tester(self, chapter, data):
         self.assertEqual(chapter.url, data['url'])
         self.assertEqual(chapter.title, data['title'])
+
+    def test_c99comicchapter_get_images(self):
+        pic_link_re = re.compile(r'^http://2\.99comic\.com:9393/dm(\d\d)//.*$')
+        url = 'http://99comic.com/mh/9926756/list_195715.htm?s=10'
+        chapter = c99comic.C99ComicChapter(url=url)
+        server_count = len(chapter.PIC_SERVERS)
+        piclst = chapter._get_images(chapter.http_get(url).text)
+        self.assertEqual(len(piclst), 48)
+        for p in piclst:
+            link_parts = pic_link_re.match(p)
+            self.assertIsNotNone(link_parts)
+            self.assertLessEqual(int(link_parts.group(1)), server_count)
 
     def test_series_url_re(self):
         url = 'http://99comic.com/comic/9926756/'
