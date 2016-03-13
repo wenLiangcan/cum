@@ -46,10 +46,6 @@ class TestC99Comic(unittest.TestCase):
             self.assertIsNone(chapter.directory)
         self.assertEqual(len(data['chapters']), 0)
 
-    def series_generated_chapter_information_tester(self, chapter, data):
-        self.assertEqual(chapter.url, data['url'])
-        self.assertEqual(chapter.title, data['title'])
-
     def test_c99comicchapter_get_images(self):
         pic_link_re = re.compile(r'^http://2\.99comic\.com:9393/dm(\d\d)//.*$')
         url = 'http://99comic.com/mh/9926756/list_195715.htm?s=10'
