@@ -138,3 +138,7 @@ class TestC99Comic(unittest.TestCase):
         self.assertEqual(chapter.filename, path_)
         chapter.download()
         image_files_tester(self, path_, 32)
+
+
+if __name__ == '__main__':
+    unittest.main()

@@ -4,6 +4,7 @@ from test_dynastyscans import *
 from test_madokami import *
 from test_fumanhua import *
 from test_c99comic import *
+from test_c99manga import *
 import sys
 import unittest
 import warnings
