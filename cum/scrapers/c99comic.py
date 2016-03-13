@@ -57,7 +57,7 @@ class C99ComicChapter(CNBaseChapter):
         chapter_re = re.compile(r'([\.\d]+)[集卷]$')
         r = cls.http_get(url)
         soup = BeautifulSoup(r.text, config.get().html_parser)
-        title_text = soup.find('title').text
+        title_text = soup.find('title').text.strip()
         *name_parts, title, _, _ = title_text.split()
         name = ' '.join(name_parts).strip()
         chapter_parts = chapter_re.match(title)
@@ -143,7 +143,7 @@ class C99ComicSeries(CNBaseSeries):
                 title = title_parts.group(1)
                 chapter = title_parts.group(2)
             elif title_text.startswith(self.name):
-                title = title_text.strip(self.name).strip()
+                title = title_text[len(self.name):].strip()
                 chapter = title
             else:
                 *_, title = title_text.split()
