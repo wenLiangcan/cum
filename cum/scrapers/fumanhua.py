@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
-from bs4 import BeautifulSoup
-from cum import config
-from cum.scrapers.cnbase import CNBaseSeries, CNBaseChapter, download_pool
-from urllib.parse import urljoin
+import re
 from functools import partial
 from queue import Queue
-import re
+from urllib.parse import urljoin
+
+from bs4 import BeautifulSoup
+from cum import config
+from cum.scrapers.cnbase import (CNBaseChapter, CNBaseSeries,
+                                 build_download_pool)
 
 CHARSET = 'gb2312'
 
@@ -92,7 +94,7 @@ class FuManHuaChapter(CNBaseChapter):
             'safedog-flow-item': '968D7BBF02E8B06CB31CF841061308EA'
         }
         with self.progress_bar(len(images)) as bar:
-            with download_pool as pool:
+            with build_download_pool() as pool:
                 for i, img in enumerate(images):
                     headers = self.build_headers(**{
                         'Referer': referers[i],

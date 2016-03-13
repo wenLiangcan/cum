@@ -7,7 +7,8 @@ from queue import Queue
 
 from bs4 import BeautifulSoup
 from cum import config
-from cum.scrapers.cnbase import CNBaseChapter, CNBaseSeries, download_pool
+from cum.scrapers.cnbase import (CNBaseChapter, CNBaseSeries,
+                                 build_download_pool)
 
 CHARSET = 'gb2312'
 
@@ -71,7 +72,7 @@ class C99ComicChapter(CNBaseChapter):
         images = self._get_images(html)
         files_queue = Queue()
         with self.progress_bar(len(images)) as bar:
-            with download_pool as pool:
+            with build_download_pool() as pool:
                 for i, img in enumerate(images):
                     r = self.http_get(img, stream=True)
                     fut = pool.submit(self.page_download_task, i, r)

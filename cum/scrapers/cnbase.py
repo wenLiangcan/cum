@@ -1,12 +1,14 @@
 import re
 from abc import abstractmethod
+from concurrent.futures import ThreadPoolExecutor
 
 import requests
 from snownlp import SnowNLP
 
-from cum.scrapers.base import BaseChapter, BaseSeries, download_pool
+from cum import config
+from cum.scrapers.base import BaseChapter, BaseSeries
 
-__all__ = ['download_pool', 'CNBaseSeries', 'BaseChapter']
+__all__ = ['build_download_pool', 'CNBaseSeries', 'BaseChapter']
 
 HEAD = {
     "User-Agent": ("Mozilla/5.0 (X11; Linux x86_64; rv:44.0) "
@@ -44,6 +46,10 @@ class HTTPUtil:
     @classmethod
     def build_headers(cls, **kwargs):
         return dict(HEAD, **kwargs)
+
+
+def build_download_pool():
+    return ThreadPoolExecutor(config.get().download_threads)
 
 
 class CNBaseSeries(BaseSeries, HTTPUtil):
