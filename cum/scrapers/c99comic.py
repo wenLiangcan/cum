@@ -145,7 +145,7 @@ class C99ComicSeries(CNBaseSeries):
                 title = title_text.strip(self.name).strip()
                 chapter = title
             else:
-                title = title_text
+                *_, title = title_text.split()
                 chapter = title
             c = self.CHAPTER(name=self.name, alias=self.alias,
                              chapter=chapter, url=url, title=title)
