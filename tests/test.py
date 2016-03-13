@@ -5,6 +5,7 @@ from test_madokami import *
 from test_fumanhua import *
 from test_c99comic import *
 from test_c99manga import *
+from test_c99mh import *
 import sys
 import unittest
 import warnings

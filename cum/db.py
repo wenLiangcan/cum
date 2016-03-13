@@ -156,6 +156,10 @@ class Chapter(Base):
                 or parse.netloc == '99manga.com':
             from cum.scrapers.c99manga import C99MangaChapter
             return C99MangaChapter(**kwargs)
+        elif parse.netloc == 'www.99mh.com' \
+                or parse.netloc == '99mh.com':
+            from cum.scrapers.c99mh import C99MhChapter
+            return C99MhChapter(**kwargs)
         else:
             return None
 
