@@ -54,7 +54,7 @@ class C99ComicChapter(CNBaseChapter):
     @classmethod
     def from_url(cls, url):
         chapter_re = re.compile(r'([\.\d]+)[集卷]$')
-        r = C99ComicChapter.http_get(url)
+        r = cls.http_get(url)
         soup = BeautifulSoup(r.text, config.get().html_parser)
         title_text = soup.find('title').text
         *name_parts, title, _, _ = title_text.split()
