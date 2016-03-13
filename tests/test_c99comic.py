@@ -3,8 +3,11 @@ import re
 import tempfile
 import unittest
 
-from common_testers import (image_files_tester, re_tester,
-                            series_and_from_url_generated_chapter_equivalent_tester)
+from common_testers import (chapter_chapter_num_tester, image_files_tester,
+                            re_tester,
+                            series_and_from_url_generated_chapter_equivalent_tester,
+                            series_chapter_num_tester,
+                            series_name_parsing_tester)
 from cum import config
 
 
@@ -42,26 +45,6 @@ class TestC99Comic(unittest.TestCase):
             self.assertEqual(chapter.groups, [])
             self.assertIsNone(chapter.directory)
         self.assertEqual(len(data['chapters']), 0)
-
-    def series_name_parsing_tester(self, series_url, name):
-        series = c99comic.C99ComicSeries(series_url)
-        self.assertEqual(series.name, name)
-        for chapter in series.chapters:
-            c = c99comic.C99ComicChapter.from_url(chapter.url)
-            self.assertEqual(c.name, name)
-
-    def series_chapter_num_tester(self, series_url, chapter_nums, in_progress=False):
-        series = c99comic.C99ComicSeries(series_url)
-        for chapter in series.chapters:
-            self.assertIn(chapter.chapter, chapter_nums)
-        if not in_progress:
-            self.assertEqual(len(chapter_nums), len(series.chapters))
-        else:
-            self.assertLessEqual(len(chapter_nums), len(series.chapters))
-
-    def chapter_chapter_num_tester(self, chapter_url, chapter_num):
-        chapter = c99comic.C99ComicChapter.from_url(chapter_url)
-        self.assertEqual(chapter.chapter, chapter_num)
 
     def series_generated_chapter_information_tester(self, chapter, data):
         self.assertEqual(chapter.url, data['url'])
@@ -111,8 +94,9 @@ class TestC99Comic(unittest.TestCase):
                                                                 c99comic.C99ComicChapter)
 
     def test_series_name_parsing_contains_spaces_GOODBYE_LILAC(self):
-        self.series_name_parsing_tester('http://99comic.com/comic/9926575/',
-                                        'GOODBYE LILAC')
+        series_name_parsing_tester(self, 'http://99comic.com/comic/9926575/',
+                                   'GOODBYE LILAC', c99comic.C99ComicSeries,
+                                   c99comic.C99ComicChapter)
 
     def test_series_成为世间的普通光景(self):
         data = {
@@ -127,15 +111,15 @@ class TestC99Comic(unittest.TestCase):
     def test_series_chapter_num_not_contained_number_绝热线上的悸动(self):
         url = 'http://www.99comic.com/comic/9916113/'
         chapter_nums = ['前篇', '后篇']
-        self.series_chapter_num_tester(url, chapter_nums)
+        series_chapter_num_tester(self, url, chapter_nums, c99comic.C99ComicSeries)
 
     def test_chapter_chapter_num_not_contained_number_绝热线上的悸动_前篇(self):
         url = 'http://www.99comic.com/mh/9916113/list_118705.htm?s=6'
-        self.chapter_chapter_num_tester(url, '前篇')
+        chapter_chapter_num_tester(self, url, '前篇', c99comic.C99ComicChapter)
 
     def test_chapter_chapter_num_contains_special_chars_十岁的保健体育_02卷番外(self):
         url = 'http://www.99comic.com/mh/9927699/list_226939.htm?s=3'
-        self.chapter_chapter_num_tester(url, '02卷番外')
+        chapter_chapter_num_tester(self, url, '02卷番外', c99comic.C99ComicChapter)
 
     def test_chapter_1_GOODBYE_LILAC(self):
         url = 'http://99comic.com/mh/9926575/list_194102.htm?s=10'
